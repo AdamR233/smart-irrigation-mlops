@@ -1,0 +1,20 @@
+Feature,Mean absolute SHAP,Mean absolute SHAP High,Mean absolute SHAP Low,Mean absolute SHAP Medium
+Crop_Growth_Stage,1.1438,0.4317,1.7150,1.2846
+Soil_Moisture,0.9962,0.6563,1.4774,0.8549
+Wind_Speed_kmh,0.6462,0.4204,0.9530,0.5651
+Mulching_Used,0.6044,0.2960,0.8915,0.6259
+Temperature_C,0.6003,0.3976,0.8766,0.5266
+Rainfall_mm,0.4642,0.4159,0.6604,0.3163
+Field_Area_hectare,0.0190,0.0270,0.0224,0.0077
+Electrical_Conductivity,0.0181,0.0137,0.0201,0.0206
+Humidity,0.0163,0.0229,0.0083,0.0176
+Sunlight_Hours,0.0150,0.0201,0.0201,0.0048
+Soil_pH,0.0142,0.0157,0.0091,0.0179
+Organic_Carbon,0.0110,0.0154,0.0055,0.0121
+Previous_Irrigation_mm,0.0109,0.0101,0.0093,0.0134
+Season,0.0107,0.0069,0.0155,0.0098
+Irrigation_Type,0.0075,0.0103,0.0081,0.0042
+Soil_Type,0.0036,0.0047,0.0051,0.0011
+Region,0.0035,0.0045,0.0045,0.0014
+Water_Source,0.0025,0.0037,0.0032,0.0006
+Crop_Type,0.0012,0.0016,0.0017,0.0004
