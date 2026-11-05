@@ -5,3 +5,16 @@ services:
     volumes:
       - ./data:/app/data
       - ./models:/app/models
+
+  jenkins:
+    build: ./jenkins
+    image: smart-irrigation-jenkins:latest
+    user: root
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  jenkins_home:

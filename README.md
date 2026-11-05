@@ -31,6 +31,8 @@ notebooks/                original EDA and model comparison notebooks
 reports/original_study/   results of the original study (CV, ablation, SHAP)
 Dockerfile                training environment image (Python 3.14 + dependencies + src/)
 docker-compose.yml        services; volumes keep data/ and models/ on the host
+Jenkinsfile               Jenkins pipeline: build, validate data, train, metrics
+jenkins/Dockerfile        Jenkins image with Docker CLI
 ```
 
 ## Quick start (Windows, PowerShell, Python 3.14)
@@ -95,3 +97,28 @@ GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and on 
 
 Full training on the Kaggle data is not part of CI; it runs in the Jenkins pipeline.
 Results are visible in the repository's **Actions** tab and in the badge above.
+
+## Jenkins
+
+Jenkins runs in Docker and starts the training inside the project image
+(through the host Docker engine). The dataset is kept in the `smart-irrigation-data` volume.
+
+```powershell
+docker compose up -d --build jenkins     # start Jenkins at http://localhost:8080
+docker compose logs jenkins              # logs
+docker compose stop jenkins              # stop (configuration is kept)
+```
+
+Initial admin password:
+
+```powershell
+docker compose exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+```
+
+Job setup: **New Item** → *Pipeline* → **Pipeline script from SCM** → Git,
+repository `https://github.com/AdamR233/smart-irrigation-mlops.git`, branch `*/main`,
+script path `Jenkinsfile`.
+
+Pipeline stages: **Checkout → Build environment → Validate data → Train → Metrics**.
+Run it with **Build with Parameters** (experiment and number of CV folds).
+`metrics.json` and the confusion matrix of each run are archived as build artifacts.
