@@ -1,4 +1,3 @@
-# Keep the image small: only requirements.txt and src/ are needed
 .git/
 .venv/
 venv/

@@ -1,9 +1,3 @@
-"""Predict irrigation need for new observations with a saved model.
-
-Usage:
-    python -m src.predict --model models/catboost/model.joblib --input new_fields.csv --output predictions.csv
-"""
-
 import argparse
 from pathlib import Path
 

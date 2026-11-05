@@ -1,4 +1,3 @@
-# Normalize line endings (Windows locally, Linux in Docker / CI / Jenkins)
 * text=auto
 *.sh text eol=lf
 Dockerfile text eol=lf

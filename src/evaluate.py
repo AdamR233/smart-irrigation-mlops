@@ -1,10 +1,8 @@
-"""Classification metrics and confusion matrix (class order: Low, Medium, High)."""
-
 from pathlib import Path
 
 import matplotlib
 
-matplotlib.use("Agg")  # no display needed (Docker, Jenkins)
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.metrics import (
@@ -20,7 +18,6 @@ from src.config import CLASS_LABELS
 
 
 def compute_metrics(y_true, y_pred) -> dict:
-    """Overall metrics plus precision, recall and F1 for each class."""
     metrics = {
         "accuracy": accuracy_score(y_true, y_pred),
         "balanced_accuracy": balanced_accuracy_score(y_true, y_pred),
@@ -37,7 +34,6 @@ def compute_metrics(y_true, y_pred) -> dict:
 
 
 def confusion_matrix_table(y_true, y_pred) -> pd.DataFrame:
-    """Rows: true class, columns: predicted class."""
     matrix = confusion_matrix(y_true, y_pred, labels=CLASS_LABELS)
     return pd.DataFrame(matrix, index=CLASS_LABELS, columns=CLASS_LABELS)
 

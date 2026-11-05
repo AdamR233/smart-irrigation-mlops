@@ -1,21 +1,15 @@
-"""Project settings: paths, dataset description and experiment configurations."""
-
 from pathlib import Path
 
-# Paths
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_PATH = PROJECT_ROOT / "data" / "raw" / "irrigation_prediction.csv"
 MODELS_DIR = PROJECT_ROOT / "models"
 
-# Dataset source (pinned version, verified by SHA-256)
 KAGGLE_DATASET = "miadul/irrigation-water-requirement-prediction-dataset/versions/1"
 DATA_SHA256 = "3d311f2999a5857e6612fdd673762f565fe9cb788923d78abd93ad04e4ce1ab7"
 
-# Dataset columns
 TARGET = "Irrigation_Need"
 CLASS_LABELS = ["Low", "Medium", "High"]
 
-# Feature order as in the CSV file (CatBoost results depend on column order)
 FEATURES = [
     "Soil_Type",
     "Soil_pH",
@@ -49,13 +43,10 @@ CATEGORICAL_FEATURES = [
 ]
 NUMERIC_FEATURES = [f for f in FEATURES if f not in CATEGORICAL_FEATURES]
 
-# Reproducibility and evaluation protocol (same as the original notebook)
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 CV_FOLDS = 5
 
-# Experiments: hyperparameters of the original study, plus class-weighted
-# variants that address the High class imbalance (3.36% of observations).
 EXPERIMENTS = {
     "logistic_regression": {
         "model_type": "logistic_regression",

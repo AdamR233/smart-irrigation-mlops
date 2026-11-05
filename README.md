@@ -1,5 +1,7 @@
 # Smart Irrigation MLOps
 
+[![CI](https://github.com/AdamR233/smart-irrigation-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/AdamR233/smart-irrigation-mlops/actions/workflows/ci.yml)
+
 MLOps pipeline for classifying irrigation need (**Low / Medium / High**) from soil, weather and crop data.
 Built on the *Smart Irrigation AI* project
 ([AdamR233/smart-irrigation-ai](https://github.com/AdamR233/smart-irrigation-ai)).
@@ -20,6 +22,9 @@ src/data.py               download (pinned Kaggle version), validation, stratifi
 src/train.py              training, 5-fold CV, test evaluation, saving models
 src/evaluate.py           metrics (overall and per class), confusion matrix
 src/predict.py            predictions for new data from a saved model
+tests/                    pytest unit tests (synthetic data, no download)
+.github/workflows/ci.yml  GitHub Actions: lint, tests, Docker build
+pyproject.toml            pytest and ruff configuration
 data/raw/                 dataset (downloaded, not in Git)
 models/                   trained models and metrics (generated, not in Git)
 notebooks/                original EDA and model comparison notebooks
@@ -75,3 +80,18 @@ docker compose run --rm train                           # train the main model (
 `--rm` removes the container after it finishes. Results are kept in `models/` thanks to the volume.
 After changing `requirements.txt`, run `docker compose build` again; after changing only `src/`,
 a rebuild takes a few seconds (dependencies are cached).
+
+## Tests and Continuous Integration
+
+```powershell
+ruff check .        # code quality (style, unused imports, import order)
+pytest -v           # unit tests on a small synthetic dataset
+```
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on every push to `main` and on every pull request:
+
+1. **Lint and tests**: installs `requirements.txt` on Python 3.14, runs `ruff check .` and `pytest`.
+2. **Docker image build**: builds the image and checks that it imports the training code.
+
+Full training on the Kaggle data is not part of CI; it runs in the Jenkins pipeline.
+Results are visible in the repository's **Actions** tab and in the badge above.

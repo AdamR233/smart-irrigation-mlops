@@ -3,5 +3,5 @@ services:
     build: .
     image: smart-irrigation-mlops:latest
     volumes:
-      - ./data:/app/data      # dataset is downloaded here once and reused
-      - ./models:/app/models  # trained models and metrics stay on the host
+      - ./data:/app/data
+      - ./models:/app/models

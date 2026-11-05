@@ -1,16 +1,3 @@
-"""Train and evaluate one or all experiments from src/config.py.
-
-Protocol (same as the original notebook):
-  1. stratified 80/20 train/test split (random_state=42),
-  2. stratified 5-fold cross-validation on the training part only,
-  3. final fit on the whole training part and evaluation on the test part.
-Preprocessing is part of the saved model, so it is fitted only on training data.
-
-Usage:
-    python -m src.train --experiment catboost
-    python -m src.train --experiment all --cv-folds 0   # skip cross-validation
-"""
-
 import argparse
 import json
 import time
@@ -20,11 +7,11 @@ import joblib
 import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import DecisionTreeClassifier
 
 from src.config import (
@@ -47,11 +34,9 @@ SKLEARN_MODELS = {
 
 
 def build_model(model_type: str, params: dict):
-    """Return an unfitted model that accepts the raw feature DataFrame."""
     if model_type == "catboost":
-        from catboost import CatBoostClassifier  # imported only when needed
+        from catboost import CatBoostClassifier
 
-        # CatBoost handles categorical features natively, no encoding needed.
         return CatBoostClassifier(
             **params,
             cat_features=CATEGORICAL_FEATURES,
@@ -69,15 +54,10 @@ def build_model(model_type: str, params: dict):
 
 
 def predict(model, X) -> np.ndarray:
-    # CatBoost returns a column vector, sklearn a flat array.
     return np.asarray(model.predict(X)).ravel()
 
 
 def cross_validate(config: dict, X_train, y_train, n_folds: int) -> dict:
-    """Stratified k-fold CV on the training part; returns mean and std of each metric.
-
-    A fresh model is built for every fold, so preprocessing never sees validation data.
-    """
     folds = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=RANDOM_STATE)
     fold_metrics = []
     for train_idx, valid_idx in folds.split(X_train, y_train):
@@ -96,7 +76,6 @@ def cross_validate(config: dict, X_train, y_train, n_folds: int) -> dict:
 
 def run_experiment(name: str, cv_folds: int = CV_FOLDS, data_path: Path = DATA_PATH,
                    output_dir: Path = MODELS_DIR) -> dict:
-    """Train one experiment, save the model and its results, return the results."""
     config = EXPERIMENTS[name]
     df = load_data(data_path)
     X_train, X_test, y_train, y_test = split_data(df)
@@ -114,7 +93,9 @@ def run_experiment(name: str, cv_folds: int = CV_FOLDS, data_path: Path = DATA_P
     experiment_dir = Path(output_dir) / name
     experiment_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, experiment_dir / "model.joblib")
-    save_confusion_matrix_plot(y_test, y_pred, experiment_dir / "confusion_matrix.png", f"{name} (test)")
+    save_confusion_matrix_plot(
+        y_test, y_pred, experiment_dir / "confusion_matrix.png", f"{name} (test)"
+    )
 
     results = {
         "experiment": name,
@@ -138,7 +119,7 @@ def main() -> None:
     parser.add_argument("--cv-folds", type=int, default=CV_FOLDS, help="0 or 1 disables CV")
     args = parser.parse_args()
 
-    prepare_data()  # download (if missing) and verify the dataset before training
+    prepare_data()
     names = list(EXPERIMENTS) if args.experiment == "all" else [args.experiment]
     summary = []
     for name in names:
@@ -155,7 +136,8 @@ def main() -> None:
                "test_recall_High", "cv_balanced_accuracy", "cv_macro_f1", "time_s"]
     table = pd.DataFrame(summary).reindex(columns=columns).dropna(axis=1, how="all")
     print()
-    print(table.sort_values("test_balanced_accuracy", ascending=False).round(4).to_string(index=False))
+    table = table.sort_values("test_balanced_accuracy", ascending=False)
+    print(table.round(4).to_string(index=False))
     print(f"\nModels and metrics saved in: {MODELS_DIR}")
 
 

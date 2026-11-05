@@ -1,32 +1,22 @@
-# Virtual environments
 venv/
 .venv/
-
-# Python cache
 __pycache__/
 *.pyc
 .pytest_cache/
-
-# Jupyter
 .ipynb_checkpoints/
 
-# Secrets
 .env
 kaggle.json
 
-# OS files
 .DS_Store
 Thumbs.db
 
-# Dataset: downloaded from Kaggle, not stored in Git
 data/raw/*
 !data/raw/.gitkeep
 
-# Training outputs
 catboost_info/
 models/
 mlruns/
 mlartifacts/
 
-# Local course materials
 IUM_zasady_projektu.pdf

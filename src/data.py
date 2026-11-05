@@ -1,10 +1,3 @@
-"""Dataset download, validation and train/test split.
-
-Usage:
-    python -m src.data              # validate data/raw (download if missing)
-    python -m src.data --download   # force a fresh download from Kaggle
-"""
-
 import argparse
 import hashlib
 import shutil
@@ -32,7 +25,6 @@ def file_sha256(path: Path) -> str:
 
 
 def download_data(destination: Path = DATA_PATH) -> Path:
-    """Download the pinned dataset version from Kaggle and copy it to data/raw."""
     import kagglehub
 
     download_dir = Path(kagglehub.dataset_download(KAGGLE_DATASET))
@@ -46,12 +38,13 @@ def download_data(destination: Path = DATA_PATH) -> Path:
 
 
 def validate_data(df: pd.DataFrame) -> None:
-    """Raise ValueError if the data does not match the expected schema."""
     expected_columns = set(FEATURES + [TARGET])
     missing = expected_columns - set(df.columns)
     unexpected = set(df.columns) - expected_columns
     if missing or unexpected:
-        raise ValueError(f"Wrong columns. Missing: {sorted(missing)}, unexpected: {sorted(unexpected)}")
+        raise ValueError(
+            f"Wrong columns. Missing: {sorted(missing)}, unexpected: {sorted(unexpected)}"
+        )
 
     if df.isna().any().any():
         raise ValueError(f"Missing values in columns: {df.columns[df.isna().any()].tolist()}")
@@ -72,22 +65,20 @@ def load_data(path: Path = DATA_PATH) -> pd.DataFrame:
 
 
 def split_data(df: pd.DataFrame):
-    """Stratified 80/20 split, identical to the original notebook."""
     X = df[FEATURES]
     y = df[TARGET]
     return train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y)
 
 
 def prepare_data(force_download: bool = False) -> pd.DataFrame:
-    """Download the data if needed, verify its checksum and schema, return it."""
     if force_download or not DATA_PATH.exists():
         print(f"Downloading {KAGGLE_DATASET} ...", flush=True)
-        download_data()
+        download_data(DATA_PATH)
 
     checksum = file_sha256(DATA_PATH)
     if checksum != DATA_SHA256:
         raise ValueError(f"SHA-256 mismatch: expected {DATA_SHA256}, got {checksum}")
-    return load_data()
+    return load_data(DATA_PATH)
 
 
 def main() -> None:
@@ -100,7 +91,8 @@ def main() -> None:
     print(f"Rows: {len(df)}, features: {len(FEATURES)} "
           f"({len(NUMERIC_FEATURES)} numeric, {len(CATEGORICAL_FEATURES)} categorical)")
     print("Class distribution [%]:")
-    print((df[TARGET].value_counts(normalize=True) * 100).reindex(CLASS_LABELS).round(2).to_string())
+    shares = df[TARGET].value_counts(normalize=True).reindex(CLASS_LABELS) * 100
+    print(shares.round(2).to_string())
 
 
 if __name__ == "__main__":
