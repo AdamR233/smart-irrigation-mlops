@@ -22,6 +22,8 @@ pipeline {
         IMAGE = 'smart-irrigation-mlops:jenkins'
         DATA_VOLUME = 'smart-irrigation-data'
         CONTAINER = "train-${env.BUILD_NUMBER}"
+        TRAIN_EXPERIMENT = "${params.EXPERIMENT ?: 'catboost'}"
+        TRAIN_CV_FOLDS = "${params.CV_FOLDS ?: '5'}"
     }
 
     options {
@@ -51,7 +53,7 @@ pipeline {
             steps {
                 sh '''
                     docker run --name $CONTAINER -v $DATA_VOLUME:/app/data $IMAGE \
-                        python -m src.train --experiment $EXPERIMENT --cv-folds $CV_FOLDS
+                        python -m src.train --experiment $TRAIN_EXPERIMENT --cv-folds $TRAIN_CV_FOLDS
                 '''
             }
         }
