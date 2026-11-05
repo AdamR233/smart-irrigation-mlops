@@ -4,7 +4,7 @@ MLOps pipeline for classifying irrigation need (**Low / Medium / High**) from so
 Built on the *Smart Irrigation AI* project
 ([AdamR233/smart-irrigation-ai](https://github.com/AdamR233/smart-irrigation-ai)).
 
-Planned stack: Python, scikit-learn, CatBoost, Docker, GitHub Actions, Jenkins, MLflow, Streamlit, pytest.
+Stack: Python, scikit-learn, CatBoost, Docker, GitHub Actions, Jenkins, MLflow, Streamlit, pytest.
 
 ## Dataset
 
@@ -24,6 +24,8 @@ data/raw/                 dataset (downloaded, not in Git)
 models/                   trained models and metrics (generated, not in Git)
 notebooks/                original EDA and model comparison notebooks
 reports/original_study/   results of the original study (CV, ablation, SHAP)
+Dockerfile                training environment image (Python 3.14 + dependencies + src/)
+docker-compose.yml        services; volumes keep data/ and models/ on the host
 ```
 
 ## Quick start (Windows, PowerShell, Python 3.14)
@@ -41,3 +43,35 @@ python -m src.predict --model models/catboost/model.joblib --input data/raw/irri
 
 Available experiments: `logistic_regression`, `logistic_regression_balanced`, `decision_tree`,
 `random_forest`, `catboost`, `catboost_balanced` (see `src/config.py`).
+
+## Docker
+
+Requirements: [Docker Desktop](https://www.docker.com/products/docker-desktop/) running (on Windows with WSL 2).
+No local Python is needed. The dataset is downloaded automatically on the first run.
+
+```powershell
+docker compose build                                    # build the image
+docker compose run --rm train                           # train the main model (CatBoost)
+```
+
+### Command cheat sheet
+
+| Task | Command |
+|---|---|
+| Build the image | `docker compose build` |
+| Rebuild from scratch (no cache) | `docker compose build --no-cache` |
+| Train CatBoost (default) | `docker compose run --rm train` |
+| Train all experiments | `docker compose run --rm train python -m src.train --experiment all` |
+| Train one experiment | `docker compose run --rm train python -m src.train --experiment decision_tree` |
+| Train without cross-validation (fast) | `docker compose run --rm train python -m src.train --experiment all --cv-folds 0` |
+| Download and validate data | `docker compose run --rm train python -m src.data --download` |
+| Predict with a saved model | `docker compose run --rm train python -m src.predict --model models/catboost/model.joblib --input data/raw/irrigation_prediction.csv --output models/predictions.csv` |
+| Open a shell in the container | `docker compose run --rm train bash` |
+| List images | `docker image ls` |
+| List containers (also stopped) | `docker ps -a` |
+| Remove containers and network | `docker compose down` |
+| Remove the image | `docker image rm smart-irrigation-mlops:latest` |
+
+`--rm` removes the container after it finishes. Results are kept in `models/` thanks to the volume.
+After changing `requirements.txt`, run `docker compose build` again; after changing only `src/`,
+a rebuild takes a few seconds (dependencies are cached).
