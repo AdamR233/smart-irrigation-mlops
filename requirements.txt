@@ -1,7 +1,19 @@
+# Python 3.14 (tested on Windows 11)
+
+# Machine learning
 pandas==3.0.6
 numpy==2.5.3
 scikit-learn==1.9.1
 catboost==1.2.10
 matplotlib==3.11.2
 joblib==1.6.0
-kagglehub
+
+# Data download
+kagglehub==1.0.3
+
+# Experiment tracking and dashboard
+mlflow==3.17.2
+streamlit==1.66.1
+
+# Tests
+pytest==9.2.0
