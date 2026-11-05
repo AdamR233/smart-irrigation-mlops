@@ -36,7 +36,7 @@ from src.config import (
     NUMERIC_FEATURES,
     RANDOM_STATE,
 )
-from src.data import load_data, split_data
+from src.data import load_data, prepare_data, split_data
 from src.evaluate import compute_metrics, confusion_matrix_table, save_confusion_matrix_plot
 
 SKLEARN_MODELS = {
@@ -138,6 +138,7 @@ def main() -> None:
     parser.add_argument("--cv-folds", type=int, default=CV_FOLDS, help="0 or 1 disables CV")
     args = parser.parse_args()
 
+    prepare_data()  # download (if missing) and verify the dataset before training
     names = list(EXPERIMENTS) if args.experiment == "all" else [args.experiment]
     summary = []
     for name in names:

@@ -1,0 +1,14 @@
+# Keep the image small: only requirements.txt and src/ are needed
+.git/
+.venv/
+venv/
+data/
+models/
+mlruns/
+mlartifacts/
+notebooks/
+reports/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.pdf

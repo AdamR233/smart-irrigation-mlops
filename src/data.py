@@ -78,20 +78,24 @@ def split_data(df: pd.DataFrame):
     return train_test_split(X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y)
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(description="Download and validate the dataset.")
-    parser.add_argument("--download", action="store_true", help="force download from Kaggle")
-    args = parser.parse_args()
-
-    if args.download or not DATA_PATH.exists():
-        print(f"Downloading {KAGGLE_DATASET} ...")
+def prepare_data(force_download: bool = False) -> pd.DataFrame:
+    """Download the data if needed, verify its checksum and schema, return it."""
+    if force_download or not DATA_PATH.exists():
+        print(f"Downloading {KAGGLE_DATASET} ...", flush=True)
         download_data()
 
     checksum = file_sha256(DATA_PATH)
     if checksum != DATA_SHA256:
         raise ValueError(f"SHA-256 mismatch: expected {DATA_SHA256}, got {checksum}")
+    return load_data()
 
-    df = load_data()
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Download and validate the dataset.")
+    parser.add_argument("--download", action="store_true", help="force download from Kaggle")
+    args = parser.parse_args()
+
+    df = prepare_data(force_download=args.download)
     print(f"Data OK: {DATA_PATH}")
     print(f"Rows: {len(df)}, features: {len(FEATURES)} "
           f"({len(NUMERIC_FEATURES)} numeric, {len(CATEGORICAL_FEATURES)} categorical)")
